@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<title>Simvela</title>
+<script>
+  // GitHub Pages statik hostinqdir, server-side routing yoxdur — "/r/KOD"
+  // kimi gözəl yollar bu 404 fallback vasitəsilə "/r/?code=KOD"-a çevrilir.
+  // Yalnız "/r/<şeysə>" formasını tanıyırıq; başqa bilinməyən yol adi 404-dür.
+  var m = window.location.pathname.match(/^\/r\/([A-Za-z0-9-]+)\/?$/);
+  if (m) {
+    window.location.replace('/r/?code=' + encodeURIComponent(m[1]));
+  } else {
+    document.write('<p style="font-family:sans-serif;padding:40px;text-align:center">Səhifə tapılmadı. <a href="/">Ana səhifə</a></p>');
+  }
+</script>
+</head>
+<body></body>
+</html>

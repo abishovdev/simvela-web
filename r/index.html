@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dəvət kodu — Simvela</title>
+<meta name="description" content="Simvela-ya qoşul, ilk alışında endirim qazan.">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .hero { text-align: center; padding: 24px 0 8px; }
+  .code-box {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px; text-align: center; margin: 24px 0;
+  }
+  .code-label { color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .code-value { font-size: 36px; font-weight: 800; letter-spacing: 5px; color: var(--primary); margin: 10px 0; }
+  .copy-btn {
+    background: var(--primary-soft); color: var(--primary); border: none; border-radius: 10px;
+    padding: 10px 18px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .steps { counter-reset: step; padding: 0; list-style: none; }
+  .steps li {
+    display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px;
+  }
+  .steps li::before {
+    counter-increment: step; content: counter(step);
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--primary-soft); color: var(--primary); font-weight: 800; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stores { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 24px 0 8px; }
+  .store-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary); border-radius: 12px;
+    padding: 14px 24px; color: white; text-decoration: none; font-weight: 700;
+  }
+  .no-code { text-align: center; color: var(--muted); padding: 40px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="brand" href="../">
+    <div class="brand-mark">S</div>
+    <div class="brand-name">Simvela</div>
+  </a>
+
+  <div class="hero">
+    <h1>Sizi Simvela-ya dəvət ediblər 🎉</h1>
+    <p>Bu kodla qeydiyyatdan keçin — ilk alışınıza endirim aktiv olacaq.</p>
+  </div>
+
+  <div id="codeSection" class="code-box" style="display:none">
+    <div class="code-label">Dəvət kodunuz</div>
+    <div class="code-value" id="codeValue">——————</div>
+    <button class="copy-btn" id="copyBtn">Kopyala</button>
+  </div>
+
+  <div id="noCodeSection" class="no-code" style="display:none">
+    Bu link üçün kod tapılmadı — Simvela tətbiqini yükləyib Profil bölməsindən
+    öz dəvət kodunuzu ala bilərsiniz.
+  </div>
+
+  <h2>Necə davam etmək olar</h2>
+  <ol class="steps">
+    <li>Simvela-nı aşağıdakı düymədən yükləyin</li>
+    <li>Google/Apple ilə qeydiyyatdan keçin</li>
+    <li>Profil → Dostunu dəvət et → yuxarıdakı kodu "Dəvət kodunuz var?" sahəsinə yazın</li>
+    <li>İlk alışınızda endirim avtomatik tətbiq olunacaq</li>
+  </ol>
+
+  <div class="stores">
+    <a class="store-btn" href="https://play.google.com/store/apps/details?id=az.simvela.app">Google Play</a>
+    <a class="store-btn" href="https://apps.apple.com/search?term=simvela" style="background:var(--ink)">App Store</a>
+  </div>
+
+  <footer>
+    Simvela &middot; <a href="mailto:abishovazar@gmail.com">abishovazar@gmail.com</a>
+    &middot; <a href="../">simvela.app</a>
+  </footer>
+</div>
+
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var code = (params.get('code') || '').trim().toUpperCase();
+  if (code) {
+    document.getElementById('codeValue').textContent = code;
+    document.getElementById('codeSection').style.display = '';
+    document.getElementById('copyBtn').addEventListener('click', function () {
+      navigator.clipboard.writeText(code).then(function () {
+        var btn = document.getElementById('copyBtn');
+        var original = btn.textContent;
+        btn.textContent = 'Kopyalandı ✓';
+        setTimeout(function () { btn.textContent = original; }, 1500);
+      });
+    });
+  } else {
+    document.getElementById('noCodeSection').style.display = '';
+  }
+</script>
+</body>
+</html>
