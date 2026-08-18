@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="az">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dəvət kodu — Simvela</title>
-<meta name="description" content="Simvela-ya qoşul, ilk alışında endirim qazan.">
+<title>Invite Code — Simvela</title>
+<meta name="description" content="Join Simvela and get a discount on your first purchase.">
 <link rel="stylesheet" href="../assets/style.css">
 <style>
   .hero { text-align: center; padding: 24px 0 8px; }
@@ -35,6 +35,7 @@
     padding: 14px 24px; color: white; text-decoration: none; font-weight: 700;
   }
   .no-code { text-align: center; color: var(--muted); padding: 40px 0; }
+  .footnote { color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -45,28 +46,35 @@
   </a>
 
   <div class="hero">
-    <h1>Sizi Simvela-ya dəvət ediblər 🎉</h1>
-    <p>Bu kodla qeydiyyatdan keçin — ilk alışınıza endirim aktiv olacaq.</p>
+    <h1>You've been invited to Simvela 🎉</h1>
+    <p>Use this code to get 10% off your first eSIM.</p>
   </div>
 
   <div id="codeSection" class="code-box" style="display:none">
-    <div class="code-label">Dəvət kodunuz</div>
+    <div class="code-label">Your invite code</div>
     <div class="code-value" id="codeValue">——————</div>
-    <button class="copy-btn" id="copyBtn">Kopyala</button>
+    <button class="copy-btn" id="copyBtn">Copy</button>
   </div>
 
   <div id="noCodeSection" class="no-code" style="display:none">
-    Bu link üçün kod tapılmadı — Simvela tətbiqini yükləyib Profil bölməsindən
-    öz dəvət kodunuzu ala bilərsiniz.
+    No code was found for this link — download the Simvela app and sign up to get
+    your own code to share.
   </div>
 
-  <h2>Necə davam etmək olar</h2>
+  <h2>How to redeem it</h2>
   <ol class="steps">
-    <li>Simvela-nı aşağıdakı düymədən yükləyin</li>
-    <li>Google/Apple ilə qeydiyyatdan keçin</li>
-    <li>Profil → Dostunu dəvət et → yuxarıdakı kodu "Dəvət kodunuz var?" sahəsinə yazın</li>
-    <li>İlk alışınızda endirim avtomatik tətbiq olunacaq</li>
+    <li>Download Simvela using the button below</li>
+    <li>Sign up with Google or Apple</li>
+    <li>Pick any eSIM package and go to checkout</li>
+    <li>Enter the code above in the "Have an invite code?" field and tap Apply</li>
+    <li>Your 10% discount is applied instantly to that purchase</li>
   </ol>
+
+  <p class="footnote">
+    Once you're set up, you'll get your own code to share with friends —
+    find it anytime under <strong>Profile → Invite a friend</strong>. When
+    a friend uses it on their first purchase, you both get 10% off.
+  </p>
 
   <div class="stores">
     <a class="store-btn" href="https://play.google.com/store/apps/details?id=az.simvela.app">Google Play</a>
@@ -89,7 +97,7 @@
       navigator.clipboard.writeText(code).then(function () {
         var btn = document.getElementById('copyBtn');
         var original = btn.textContent;
-        btn.textContent = 'Kopyalandı ✓';
+        btn.textContent = 'Copied ✓';
         setTimeout(function () { btn.textContent = original; }, 1500);
       });
     });
