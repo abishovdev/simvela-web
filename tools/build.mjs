@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { LANGS, T } from './i18n.mjs';
 import { UI, POPULAR } from './i18n-ui.mjs';
 import { REF } from './i18n-ref.mjs';
-import { buildNames, buildEntities, PAGE_LANGS, P as PAGEP, prefixOf, entityPath } from './entity.mjs';
+import { buildNames, buildEntities, PAGE_LANGS, P as PAGEP, prefixOf, entityPath, shareBarHtml, shareButton } from './entity.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const icons = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/icons.json'), 'utf8'));
@@ -49,6 +49,7 @@ function render(lang) {
   const t = { ...T.en, ...T[lang.code] };
   const u = { ...UI.en, ...UI[lang.code] };
   const rf = { ...REF.en, ...REF[lang.code] };
+  const pp = PAGEP[lang.code] ?? PAGEP.en;
   const regionNames = new Intl.DisplayNames([lang.code], { type: 'region' });
   const enNames = new Intl.DisplayNames(['en'], { type: 'region' });
   const safe = (dn, c) => { try { return dn.of(c) ?? c; } catch { return c; } };
@@ -146,11 +147,13 @@ ${alternates}
   <div class="wrap top-in">
     <a class="brand" href="${pageHref(lang.code)}" aria-label="Simvela">${logo}</a>
     <div class="top-r">
+      ${shareButton(ctx, pp)}
       <button class="themebtn" id="theme" type="button" aria-label="${esc(DARK[lang.code] ?? DARK.en)}" title="${esc(DARK[lang.code] ?? DARK.en)}">${icon('Moon', 'i-moon')}${icon('Sun', 'i-sun')}</button>
       <label class="lang"><span class="sr">${esc(t.lang)}</span>${icon('Globe')}<select id="lang" aria-label="${esc(t.lang)}">${langOptions}</select>${icon('CaretDown', 'caret')}</label>
       <a class="btn btn-sm" href="#get">${esc(t.get)}</a>
     </div>
   </div>
+  <div class="sharepop" id="sharepop" hidden><div class="wrap">${shareBarHtml(ctx, { url: pageUrl(lang.code), text: t.sub, title: t.title, p: pp, ig: false })}</div></div>
 </header>
 
 <main id="main">
@@ -253,6 +256,7 @@ ${alternates}
 </footer>
 <script id="sv-data" type="application/json">${JSON.stringify(clientData).replace(/</g, '\\u003c')}</script>
 ${isRoot ? '<script>try{var s=localStorage.getItem("lang");if(s&&s!=="en"&&/^[a-z]{2}$/.test(s)&&location.pathname==="/"&&!location.hash){location.replace("/"+s+"/")}}catch(e){}</script>' : ''}
+<script src="/assets/share.js" defer></script>
 <script src="/assets/site.js" defer></script>
 </body>
 </html>

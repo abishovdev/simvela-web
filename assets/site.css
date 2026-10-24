@@ -312,3 +312,8 @@ html[dir='rtl'] .crumbs .ic { transform: scaleX(-1); }
 .plinks a:hover { border-color: var(--primary); color: var(--primary); }
 .epage .foot { margin-top: clamp(56px, 8vw, 108px); }
 @media (max-width: 900px) { .ehero-in { grid-template-columns: 1fr; } .ehero-ph { order: -1; max-height: 260px; } }
+
+/* ── başlıqdakı paylaşma paneli ───────────────────────── */
+.top { position: sticky; }
+.sharepop { position: absolute; inset-inline: 0; top: 100%; background: var(--card); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); padding-block: 14px; }
+.sharepop .share { margin: 0; }

@@ -98,21 +98,39 @@ export function buildNames(ctx) {
   return out;
 }
 
+export function shareLinks(url, text, title) {
+  const u = encodeURIComponent(url), tx = encodeURIComponent(text);
+  return [
+    ['X', 'XLogo', `https://twitter.com/intent/tweet?url=${u}&text=${tx}`],
+    ['Facebook', 'FacebookLogo', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', 'RedditLogo', `https://www.reddit.com/submit?url=${u}&title=${encodeURIComponent(title)}`],
+    ['WhatsApp', 'WhatsappLogo', `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`],
+    ['Telegram', 'TelegramLogo', `https://t.me/share/url?url=${u}&text=${tx}`],
+  ];
+}
+
+// Server tərəfində yazılan paylaşma çubuğu (JS olmadan da linklər işləyir; kopyala/native düymələrini JS aktivləşdirir)
+export function shareBarHtml(ctx, { url, text, title, p, cls = '', ig = true }) {
+  const { esc, icon } = ctx;
+  return `<div class="share ${cls}" data-url="${esc(url)}" data-text="${esc(text)}" data-title="${esc(title)}" data-copied="${esc(p.copied)}">
+  <span class="share-l">${esc(p.share)}</span>
+  ${shareLinks(url, text, title).map(([n, ic, href]) => `<a class="sh" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="${n}" title="${n}">${icon(ic)}</a>`).join('')}
+  <button class="sh" type="button" data-copy aria-label="${esc(p.copy)}" title="${esc(p.copy)}">${icon('Link')}</button>
+  <button class="sh" type="button" data-native aria-label="${esc(p.native)}" title="${esc(p.native)}" hidden>${icon('ShareNetwork')}</button>
+  <span class="share-ok" role="status" aria-live="polite"></span>
+  ${ig ? `<p class="share-ig">${esc(p.ig)}</p>` : ''}
+</div>`;
+}
+
+export function shareButton(ctx, p) {
+  const { esc, icon } = ctx;
+  return `<button class="themebtn" id="sharebtn" type="button" aria-expanded="false" aria-controls="sharepop" aria-label="${esc(p.share)}" title="${esc(p.share)}">${icon('ShareNetwork')}</button>`;
+}
+
 export function buildEntities(ctx, names) {
   const { ROOT, SITE, IOS_URL, ANDROID_URL, SOCIAL, esc, icon, money, LANGS, T, UI, POPULAR, index, regionFiles, DARK } = ctx;
   const ogOf = (key) => (fs.existsSync(path.join(ROOT, 'assets/og', `${key}.jpg`)) ? `${SITE}/assets/og/${key}.jpg` : `${SITE}/assets/og.png`);
   const urls = []; // sitemap üçün: {slug, langs}
-
-  const shareLinks = (url, text, title) => {
-    const u = encodeURIComponent(url), tx = encodeURIComponent(text);
-    return [
-      ['X', 'XLogo', `https://twitter.com/intent/tweet?url=${u}&text=${tx}`],
-      ['Facebook', 'FacebookLogo', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
-      ['Reddit', 'RedditLogo', `https://www.reddit.com/submit?url=${u}&title=${encodeURIComponent(title)}`],
-      ['WhatsApp', 'WhatsappLogo', `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`],
-      ['Telegram', 'TelegramLogo', `https://t.me/share/url?url=${u}&text=${tx}`],
-    ];
-  };
 
   function planTable(rows, t, u, fmt) {
     const head = `<thead><tr><th scope="col">${esc(u.thPlan)}</th><th scope="col">${esc(t.thData)}</th><th scope="col">${esc(t.thValid)}</th><th scope="col" class="net">${esc(u.thNet)}</th><th scope="col" class="num">${esc(t.thPrice)}</th></tr></thead>`;
@@ -167,14 +185,8 @@ export function buildEntities(ctx, names) {
       const alternates = PAGE_LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE}${entityPath(l, e.slug)}">`).join('\n') +
         `\n<link rel="alternate" hreflang="x-default" href="${SITE}${entityPath('en', e.slug)}">`;
 
-      const shareBar = `<div class="share" data-url="${esc(url)}" data-text="${esc(text)}" data-title="${esc(title)}" data-copied="${esc(p.copied)}">
-  <span class="share-l">${esc(p.share)}</span>
-  ${shareLinks(url, text, title).map(([n, ic, href]) => `<a class="sh" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="${n}" title="${n}">${icon(ic)}</a>`).join('')}
-  <button class="sh" type="button" data-copy aria-label="${esc(p.copy)}" title="${esc(p.copy)}">${icon('Link')}</button>
-  <button class="sh" type="button" data-native aria-label="${esc(p.native)}" title="${esc(p.native)}" hidden>${icon('ShareNetwork')}</button>
-  <span class="share-ok" role="status" aria-live="polite"></span>
-  <p class="share-ig">${esc(p.ig)}</p>
-</div>`;
+      const shareBar = shareBarHtml(ctx, { url, text, title, p });
+      const popBar = shareBarHtml(ctx, { url, text, title, p, ig: false });
 
       let content = '';
       let ldOffers = { lowPrice: e.min, offerCount: e.n };
@@ -246,11 +258,13 @@ ${alternates}
   <div class="wrap top-in">
     <a class="brand" href="${homeHref}" aria-label="Simvela">${logo}</a>
     <div class="top-r">
+      ${shareButton(ctx, p)}
       <button class="themebtn" id="theme" type="button" aria-label="${esc(DARK[lang.code] ?? DARK.en)}" title="${esc(DARK[lang.code] ?? DARK.en)}">${icon('Moon', 'i-moon')}${icon('Sun', 'i-sun')}</button>
       <label class="lang"><span class="sr">${esc(t.lang)}</span>${icon('Globe')}<select id="lang" aria-label="${esc(t.lang)}" data-slug="${e.slug}">${langOptions}</select>${icon('CaretDown', 'caret')}</label>
       <a class="btn btn-sm" href="#get">${esc(t.get)}</a>
     </div>
   </div>
+  <div class="sharepop" id="sharepop" hidden><div class="wrap">${popBar}</div></div>
 </header>
 <main id="main">
   <section class="ehero wrap" id="get">
@@ -288,6 +302,7 @@ ${alternates}
     <p class="legal">${esc(t.copy.replace('{year}', '2026'))}</p>
   </div>
 </footer>
+<script src="/assets/share.js" defer></script>
 <script src="/assets/page.js" defer></script>
 </body>
 </html>
