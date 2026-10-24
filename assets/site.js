@@ -31,6 +31,51 @@
     });
   }
 
+  // ── paylaşma çubuğu (seçilmiş ölkə/region üçün real səhifə linki) ──
+  var SH = D.share;
+  function shareBar(kind, code, name, minPrice) {
+    var slug = (kind === 'c' ? SH.slugs : SH.rslugs)[code];
+    if (!slug) return null;
+    var url = SH.origin + SH.prefix + '/esim/' + slug + '/';
+    var vars = { name: name, price: '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(minPrice) };
+    var fillv = function (str) { return str.replace(/\{(\w+)\}/g, function (_, k) { return vars[k] || ''; }); };
+    var text = fillv(SH.labels.shareText), u = encodeURIComponent(url), tx = encodeURIComponent(text);
+    var title = name + ' eSIM';
+    var targets = [
+      ['X', 'XLogo', 'https://twitter.com/intent/tweet?url=' + u + '&text=' + tx],
+      ['Facebook', 'FacebookLogo', 'https://www.facebook.com/sharer/sharer.php?u=' + u],
+      ['Reddit', 'RedditLogo', 'https://www.reddit.com/submit?url=' + u + '&title=' + encodeURIComponent(title)],
+      ['WhatsApp', 'WhatsappLogo', 'https://wa.me/?text=' + encodeURIComponent(text + ' ' + url)],
+      ['Telegram', 'TelegramLogo', 'https://t.me/share/url?url=' + u + '&text=' + tx],
+    ];
+    function svg(name) {
+      var ns = 'http://www.w3.org/2000/svg', s = document.createElementNS(ns, 'svg');
+      s.setAttribute('viewBox', '0 0 256 256'); s.setAttribute('class', 'ic'); s.setAttribute('aria-hidden', 'true');
+      var p = document.createElementNS(ns, 'path'); p.setAttribute('d', SH.icons[name]); p.setAttribute('fill', 'currentColor'); s.appendChild(p); return s;
+    }
+    var box = el('div', 'share');
+    box.appendChild(el('span', 'share-l', SH.labels.share));
+    targets.forEach(function (t) {
+      var a = el('a', 'sh'); a.href = t[2]; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.title = t[0]; a.setAttribute('aria-label', t[0]); a.appendChild(svg(t[1])); box.appendChild(a);
+    });
+    var ok = el('span', 'share-ok'); ok.setAttribute('role', 'status'); ok.setAttribute('aria-live', 'polite');
+    var cp = el('button', 'sh'); cp.type = 'button'; cp.title = SH.labels.copy; cp.setAttribute('aria-label', SH.labels.copy); cp.appendChild(svg('Link'));
+    cp.addEventListener('click', function () {
+      var done = function () { ok.textContent = SH.labels.copied; setTimeout(function () { ok.textContent = ''; }, 2400); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () {});
+    });
+    box.appendChild(cp);
+    if (navigator.share) {
+      var nv = el('button', 'sh'); nv.type = 'button'; nv.title = SH.labels.native; nv.setAttribute('aria-label', SH.labels.native); nv.appendChild(svg('ShareNetwork'));
+      nv.addEventListener('click', function () { navigator.share({ title: title, text: text, url: url }).catch(function () {}); });
+      box.appendChild(nv);
+    }
+    box.appendChild(ok);
+    var link = el('a', 'plink', url.replace(/^https?:\/\//, '')); link.href = url;
+    box.appendChild(link);
+    return box;
+  }
+
   // ── yardımçılar ──────────────────────────────────────────
   var fmtGb = new Intl.NumberFormat(loc, { style: 'unit', unit: 'gigabyte', unitDisplay: 'short', maximumFractionDigits: 2 });
   var fmtDay = new Intl.NumberFormat(loc, { style: 'unit', unit: 'day', unitDisplay: 'long' });
@@ -152,7 +197,9 @@
       if (rows.some(function (r) { return r[5]; })) {
         var lg = el('span', 'legend'); lg.appendChild(el('span', 'reg', '\u25CF')); lg.appendChild(document.createTextNode(' ' + T.regTitle)); head.appendChild(lg);
       }
-      cdetail.replaceChildren(head, planTable(rows, 8));
+      var minP = Math.min.apply(null, rows.map(function (r) { return r[3]; }));
+      var bar = shareBar('c', cc, D.names[cc], minP);
+      cdetail.replaceChildren.apply(cdetail, [head].concat(bar ? [bar] : [], [planTable(rows, 8)]));
     }).catch(function () { cdetail.replaceChildren(el('p', 'hint', T.err)); });
     if (!silent) { try { history.replaceState(null, '', '#c-' + cc); } catch (e) {} }
     if (fromUser && window.matchMedia('(max-width: 900px)').matches) {
@@ -186,8 +233,10 @@
     getJson('/data/r/' + code + '.json').then(function (data) {
       if (currentR !== code) return;
       var out = [el('div', 'dhead', null)];
+      var rbar = shareBar('r', code, meta[1], meta[2]);
       out[0].appendChild(el('h3', '', meta[1]));
       out[0].appendChild(el('span', 'badge', fill(T.plansN, meta[3])));
+      if (rbar) out.push(rbar);
       data.groups.forEach(function (g) {
         var box = el('div', 'group');
         var gh = el('div', 'ghead');

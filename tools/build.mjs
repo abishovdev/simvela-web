@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { LANGS, T } from './i18n.mjs';
 import { UI, POPULAR } from './i18n-ui.mjs';
 import { REF } from './i18n-ref.mjs';
+import { buildNames, buildEntities, PAGE_LANGS, P as PAGEP, prefixOf, entityPath } from './entity.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const icons = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/icons.json'), 'utf8'));
@@ -39,6 +40,10 @@ const money = (n) => '$' + usd.format(n);
 const allCodes = new Set(index.countries.map((c) => c[0]));
 for (const r of Object.values(regionFiles)) for (const g of r.groups) g.countries.forEach((c) => allCodes.add(c));
 const minByCode = Object.fromEntries(index.countries.map(([c, min, n]) => [c, { min, n }]));
+
+const ctx = { ROOT, SITE, IOS_URL, ANDROID_URL, SOCIAL, esc, icon, money, LANGS, T, UI, POPULAR, index, regionFiles, DARK };
+const names_ = buildNames(ctx);
+const SHARE_ICONS = Object.fromEntries(['XLogo', 'FacebookLogo', 'RedditLogo', 'WhatsappLogo', 'TelegramLogo', 'Link', 'ShareNetwork'].map((k) => [k, icons[k].join(' ')]));
 
 function render(lang) {
   const t = { ...T.en, ...T[lang.code] };
@@ -85,6 +90,14 @@ function render(lang) {
   const clientData = {
     lang: lang.code,
     names, en: enMap,
+    share: {
+      origin: SITE,
+      prefix: PAGE_LANGS.includes(lang.code) ? prefixOf(lang.code) : '',
+      slugs: Object.fromEntries(Object.entries(names_.countries).map(([k, v]) => [k, v.slug])),
+      rslugs: Object.fromEntries(Object.entries(names_.regions).map(([k, v]) => [k, v.slug])),
+      labels: PAGEP[lang.code] ?? PAGEP.en,
+      icons: SHARE_ICONS,
+    },
     countries: index.countries,
     regions: index.regions.map(([code, min, n, counts]) => [code, u.regions[code] ?? code, min, n, counts]),
     t: {
@@ -253,8 +266,10 @@ for (const lang of LANGS) {
   fs.writeFileSync(out, html);
 }
 
+const entitySlugs = buildEntities(ctx, names_);
 const urls = LANGS.map((l) => `  <url><loc>${pageUrl(l.code)}</loc>${LANGS.map((a) => `<xhtml:link rel="alternate" hreflang="${a.code}" href="${pageUrl(a.code)}"/>`).join('')}</url>`);
+const entityUrls = entitySlugs.map((slug) => `  <url><loc>${SITE}${entityPath('en', slug)}</loc>${PAGE_LANGS.map((a) => `<xhtml:link rel="alternate" hreflang="${a}" href="${SITE}${entityPath(a, slug)}"/>`).join('')}</url>`);
 fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`);
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${[...urls, ...entityUrls].join('\n')}\n</urlset>\n`);
 fs.writeFileSync(path.join(ROOT, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /r/\n\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log('built', LANGS.length, 'pages');
