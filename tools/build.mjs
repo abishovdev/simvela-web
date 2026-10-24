@@ -17,6 +17,7 @@ const regionFiles = Object.fromEntries(
 );
 
 const SITE = 'https://simvela.app';
+const DARK = { en: 'Dark mode', az: 'Tünd rejim', tr: 'Karanlık mod', ru: 'Тёмная тема', de: 'Dunkelmodus', fr: 'Mode sombre', it: 'Modalità scura', es: 'Modo oscuro', pt: 'Modo escuro', ar: 'الوضع الداكن', hi: 'डार्क मोड', ja: 'ダークモード', ko: '다크 모드', zh: '深色模式' };
 const IOS_URL = 'https://apps.apple.com/app/id6794697043';
 const ANDROID_URL = 'https://play.google.com/store/apps/details?id=az.simvela.app';
 const SOCIAL = [
@@ -116,8 +117,8 @@ ${alternates}
 <meta property="og:image" content="${SITE}/assets/og.png">
 <meta property="og:locale" content="${lang.og}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0E0F11" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFFFFF">
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <link rel="icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -132,6 +133,7 @@ ${alternates}
   <div class="wrap top-in">
     <a class="brand" href="${pageHref(lang.code)}" aria-label="Simvela">${logo}</a>
     <div class="top-r">
+      <button class="themebtn" id="theme" type="button" aria-label="${esc(DARK[lang.code] ?? DARK.en)}" title="${esc(DARK[lang.code] ?? DARK.en)}">${icon('Moon', 'i-moon')}${icon('Sun', 'i-sun')}</button>
       <label class="lang"><span class="sr">${esc(t.lang)}</span>${icon('Globe')}<select id="lang" aria-label="${esc(t.lang)}">${langOptions}</select>${icon('CaretDown', 'caret')}</label>
       <a class="btn btn-sm" href="#get">${esc(t.get)}</a>
     </div>

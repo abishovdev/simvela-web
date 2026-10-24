@@ -21,6 +21,16 @@
     });
   });
 
+  // ── tema (default işıqlı; tünd rejim yalnız istifadəçi seçəndə) ──
+  var themeBtn = document.getElementById('theme');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      var root = document.documentElement, dark = root.getAttribute('data-theme') !== 'dark';
+      if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+    });
+  }
+
   // ── yardımçılar ──────────────────────────────────────────
   var fmtGb = new Intl.NumberFormat(loc, { style: 'unit', unit: 'gigabyte', unitDisplay: 'short', maximumFractionDigits: 2 });
   var fmtDay = new Intl.NumberFormat(loc, { style: 'unit', unit: 'day', unitDisplay: 'long' });
