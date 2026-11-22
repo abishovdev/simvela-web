@@ -258,6 +258,7 @@ ${alternates}
 ${isRoot ? '<script>try{var s=localStorage.getItem("lang");if(s&&s!=="en"&&/^[a-z]{2}$/.test(s)&&location.pathname==="/"&&!location.hash){location.replace("/"+s+"/")}}catch(e){}</script>' : ''}
 <script src="/assets/share.js" defer></script>
 <script src="/assets/site.js" defer></script>
+${isRoot ? '<!--MilliNet --> <script type="text/javascript" src="https://millinet.az/banner.js?id=861"></script>' : ''}
 </body>
 </html>
 `;
